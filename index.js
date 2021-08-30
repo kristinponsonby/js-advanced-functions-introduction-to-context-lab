@@ -22,40 +22,67 @@ function createTimeInEvent(employee, timeCard) {
 
     const timeInEvent = {
         type: "TimeIn",
-        hour: timeCardArray[1],
+        hour: parseInt(timeCardArray[1], 10),
         date: timeCardArray[0]
     }
-        const updatedEmployee = employee.timeInEvents.push(timeInEvent)
-        return updatedEmployee
-
+         employee.timeInEvents.push(timeInEvent)
+         return employee
+    
 }
 
 
-function createTimeOutEvent(employee, time) {
+function createTimeOutEvent(employee, timeCard) {
+    const timeCardArray = timeCard.split(" ")
+
     const timeOutEvent = {
         type: "TimeOut",
-        hour: employee[1],
-        date: employee[0]
+        hour: parseInt(timeCardArray[1], 10),
+        date: timeCardArray[0]
     }
+    employee.timeOutEvents.push(timeOutEvent)
+    return employee
 }
 
 
-function hoursWorkedOnDate() {
+let hoursWorkedOnDate = function(employee, soughtDate){
+    let inEvent = employee.timeInEvents.find(function(e){
+        return e.date === soughtDate
+    })
 
+    let outEvent = employee.timeOutEvents.find(function(e){
+        return e.date === soughtDate
+    })
+
+    return (outEvent.hour - inEvent.hour) / 100
 }
 
-function wagesEarnedOnDate() {
-
+let wagesEarnedOnDate = function(employee, dateSought){
+    let rawWage = hoursWorkedOnDate(employee, dateSought)
+        * employee.payPerHour
+    return parseFloat(rawWage.toString())
 }
 
-function allWagesFor() {
 
+let allWagesFor = function(employee){
+    let eligibleDates = employee.timeInEvents.map(function(e){
+        return e.date
+    })
+
+    let payable = eligibleDates.reduce(function(memo, d){
+        return memo + wagesEarnedOnDate(employee, d)
+    }, 0)
+
+    return payable
 }
 
-function findEmployeeByFirstName() {
+let findEmployeeByFirstName = function(srcArray, firstName) {
+    return srcArray.find(function(rec){
+      return rec.firstName === firstName
+    })
+  }
 
-}
-  
-function calculatePayroll(){
-
+let calculatePayroll = function(arrayOfEmployeeRecords){
+    return arrayOfEmployeeRecords.reduce(function(memo, rec){
+        return memo + allWagesFor(rec)
+    }, 0)
 }
